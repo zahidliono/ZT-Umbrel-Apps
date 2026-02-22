@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fractal Bitcoin Node</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0d0d0d;color:#e0e0e0;min-height:100vh;padding:28px 24px}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:30px;flex-wrap:wrap}
+.logo{width:48px;height:48px;background:linear-gradient(135deg,#f7931a,#e07b10);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+h1{font-size:24px;font-weight:700;color:#fff}h1 span{color:#f7931a}
+.sub{font-size:13px;color:#555;margin-top:2px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12.5px;font-weight:500;margin-left:auto}
+.pill.sync{background:#1a1000;color:#f7931a;border:1px solid #f7931a33}
+.pill.ok{background:#001508;color:#00c853;border:1px solid #00c85333}
+.pill.err{background:#150000;color:#ff5252;border:1px solid #ff525233}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:28px}
+.card{background:#161616;border:1px solid #222;border-radius:12px;padding:18px 16px}
+.card-l{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#444;margin-bottom:8px}
+.card-v{font-size:20px;font-weight:700;color:#fff;line-height:1}
+.card-s{font-size:11.5px;color:#3a3a3a;margin-top:5px}
+.card-v.ok{color:#00c853}.card-v.warn{color:#f7931a}
+
+.prog-wrap{height:4px;background:#1a1a1a;border-radius:4px;margin-top:8px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,#f7931a,#ffb347);border-radius:4px;transition:width .5s ease}
+
+h2{font-size:15px;font-weight:600;color:#fff;margin-bottom:12px}
+
+.box{background:#161616;border:1px solid #222;border-radius:12px;padding:20px;margin-bottom:20px}
+.box p{font-size:13px;color:#666;line-height:1.65;margin-bottom:14px}
+.lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#444;margin-bottom:5px}
+pre{background:#0a0a0a;border:1px solid #222;border-radius:8px;padding:13px 14px;font-family:'SF Mono','Fira Code','Courier New',monospace;font-size:12.5px;color:#a8d8a8;overflow-x:auto;margin-bottom:12px;white-space:pre}
+.warn-box{background:#120f00;border:1px solid #f7931a22;border-radius:8px;padding:12px 14px;font-size:12.5px;color:#a07830;margin-top:4px;line-height:1.55}
+code{background:#1a0f00;color:#f7931a;padding:1px 6px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo">₿</div>
+  <div>
+    <h1>Fractal <span>Bitcoin</span> Node</h1>
+    <div class="sub">Solo Mining Node · umbrelOS</div>
+  </div>
+  <span id="pill" class="pill sync"><span class="dot"></span>&nbsp;<span id="pill-txt">Connecting…</span></span>
+</div>
+
+<div class="cards">
+  <div class="card">
+    <div class="card-l">Block Height</div>
+    <div class="card-v" id="c-blocks">—</div>
+    <div class="card-s" id="c-sync">Waiting for node…</div>
+    <div class="prog-wrap"><div class="prog-bar" id="prog" style="width:0%"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-l">Peers</div>
+    <div class="card-v" id="c-peers">—</div>
+    <div class="card-s">Connected peers</div>
+  </div>
+  <div class="card">
+    <div class="card-l">Difficulty</div>
+    <div class="card-v" id="c-diff">—</div>
+    <div class="card-s">SHA-256 difficulty</div>
+  </div>
+  <div class="card">
+    <div class="card-l">Network</div>
+    <div class="card-v" id="c-chain">—</div>
+    <div class="card-s" id="c-ver">Fractal Bitcoin</div>
+  </div>
+</div>
+
+<h2>⛏️ Connect Your Miner</h2>
+<div class="box">
+  <p>Point your SHA-256 ASIC miner at this node using its RPC endpoint. Replace <code>YOUR_FB_ADDR</code> with your Fractal Bitcoin address from <a href="https://unisat.io" style="color:#f7931a" target="_blank">UniSat Wallet</a>. Your RPC password is the same as your Umbrel login password.</p>
+
+  <div class="lbl">cpuminer / minerd</div>
+  <pre>./minerd \
+  -o http://umbrel.local:10332 \
+  -u fractal -p YOUR_UMBREL_PASSWORD \
+  --coinbase-addr=YOUR_FB_ADDR \
+  -a sha256d --no-longpoll</pre>
+
+  <div class="lbl">CGMiner / BFGMiner</div>
+  <pre>cgminer \
+  -o http://umbrel.local:10332 \
+  -u fractal -p YOUR_UMBREL_PASSWORD \
+  --coinbase-addr=YOUR_FB_ADDR</pre>
+
+  <div class="lbl">Merged Mining (AuxPoW) — ChainID</div>
+  <pre>ChainID: 0x2024  (decimal: 8228)</pre>
+
+  <div class="warn-box">⚠️ Solo mining needs significant ASIC hashpower (difficulty ~5 GH permissionless). For small miners, consider an established FB pool and use this node just for network participation &amp; sovereignty.</div>
+</div>
+
+<h2>🔧 RPC Commands (via SSH)</h2>
+<div class="box">
+  <div class="lbl">Check sync status</div>
+  <pre>docker exec fractal-store-solo-node_node_1 \
+  bitcoin-cli -datadir=/data getblockchaininfo</pre>
+
+  <div class="lbl">Check mining info</div>
+  <pre>docker exec fractal-store-solo-node_node_1 \
+  bitcoin-cli -datadir=/data getmininginfo</pre>
+
+  <div class="lbl">Get block template for miner</div>
+  <pre>docker exec fractal-store-solo-node_node_1 \
+  bitcoin-cli -datadir=/data \
+  getblocktemplate '{"rules":["segwit"]}'</pre>
+</div>
+
+<script>
+async function refresh() {
+  try {
+    const r = await fetch('/api/status');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+
+    document.getElementById('c-blocks').textContent = d.blocks.toLocaleString();
+    const pct = Math.min(d.progress * 100, 100);
+    const synced = pct >= 99.9;
+    document.getElementById('c-sync').textContent = synced ? '✓ Fully synced' : `Syncing: ${pct.toFixed(2)}%`;
+    document.getElementById('prog').style.width = pct.toFixed(1) + '%';
+    document.getElementById('c-peers').textContent = d.peers;
+    const diff = d.difficulty;
+    document.getElementById('c-diff').textContent = diff >= 1e9 ? (diff/1e9).toFixed(2)+'G' : diff >= 1e6 ? (diff/1e6).toFixed(2)+'M' : diff >= 1e3 ? (diff/1e3).toFixed(1)+'K' : diff.toFixed(0);
+    document.getElementById('c-chain').textContent = d.chain === 'main' ? 'Mainnet' : d.chain;
+    if (d.version) document.getElementById('c-ver').textContent = d.version.replace(/\//g,'').replace(/Satoshi:/,'v');
+
+    const pill = document.getElementById('pill');
+    const pt = document.getElementById('pill-txt');
+    pill.className = 'pill ' + (synced ? 'ok' : 'sync');
+    pt.textContent = synced ? 'Synced' : 'Syncing ' + pct.toFixed(1) + '%';
+  } catch(e) {
+    document.getElementById('pill').className = 'pill err';
+    document.getElementById('pill-txt').textContent = 'Offline';
+    document.getElementById('c-blocks').textContent = '—';
+    document.getElementById('c-sync').textContent = 'Node starting up or downloading…';
+  }
+}
+refresh();
+setInterval(refresh, 12000);
+</script>
+</body>
+</html>
