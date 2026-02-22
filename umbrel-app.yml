@@ -1,0 +1,37 @@
+manifestVersion: 1
+id: fractal-solo-node
+name: Fractal Bitcoin Node
+tagline: Run a Fractal Bitcoin (FB) full node for solo mining
+icon: https://raw.githubusercontent.com/fractal-bitcoin/fractal/master/src/qt/res/icons/bitcoin.png
+category: Cryptocurrency
+version: "0.2.1"
+port: 8380
+description: >-
+  Run a full Fractal Bitcoin (FB) node on your Umbrel. Fractal Bitcoin is a
+  Bitcoin scaling solution (sidechain) using SHA-256 Proof-of-Work with 30-second
+  block times. This app runs fractald (based on Bitcoin Core) with RPC enabled so
+  you can point your SHA-256 ASIC miner directly at your own node for solo mining.
+
+  Features:
+  - Full Fractal Bitcoin node (based on Bitcoin Core)
+  - JSON-RPC endpoint on port 10332 for mining software
+  - Stratum-compatible via getblocktemplate (GBT)
+  - Web dashboard showing node status, peer count, and mining info
+  - Supports merged mining (AuxPoW) and permissionless solo mining (Cadence Mining)
+
+  Important: Solo mining FB requires competitive SHA-256 ASIC hashpower.
+  The difficulty is ~5 GH (permissionless) or ~400 GH (merged mining).
+  Running the node alone does not mine blocks; you must point ASIC miners at it.
+
+developer: Community
+website: https://fractalbitcoin.io
+dependencies: []
+repo: https://github.com/fractal-bitcoin/fractald-release
+support: https://docs.fractalbitcoin.io
+gallery:
+  - 1.jpg
+releaseNotes: >-
+  Initial release. Runs fractald v0.2.1 with RPC enabled and a simple web dashboard
+  for node status and miner connection info.
+submitter: community
+submission: https://github.com/fractal-bitcoin/fractald-release
