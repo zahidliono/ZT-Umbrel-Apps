@@ -1,0 +1,52 @@
+version: "3.7"
+
+services:
+
+  # ── Fractal Bitcoin full node ────────────────────────────────────────────────
+  fractal-node:
+    image: fractalbitcoin/fractal:v0.2.1
+    container_name: fractal_store_node
+    restart: unless-stopped
+    command:
+      - "bitcoind"
+      - "-datadir=/data"
+      - "-conf=/data/bitcoin.conf"
+      - "-maxtipage=504576000"
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+    ports:
+      - "8333:8333"
+    networks:
+      - fractal_net
+    healthcheck:
+      test: ["CMD", "bitcoin-cli", "-datadir=/data", "-rpcuser=fractal", "-rpcpassword=fractal_umbrel_node", "getblockchaininfo"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  # ── Web dashboard + RPC proxy ────────────────────────────────────────────────
+  fractal-dashboard:
+    image: node:18-alpine
+    container_name: fractal_store_dashboard
+    restart: unless-stopped
+    depends_on:
+      - fractal-node
+    working_dir: /app
+    command: node server.js
+    volumes:
+      - ${APP_DATA_DIR}/dashboard:/app
+    environment:
+      FRACTAL_RPC_HOST: fractal-node
+      FRACTAL_RPC_PORT: "10332"
+      FRACTAL_RPC_USER: fractal
+      FRACTAL_RPC_PASS: fractal_umbrel_node
+      DASHBOARD_PORT: "8380"
+    ports:
+      - "${APP_PORT}:8380"
+    networks:
+      - fractal_net
+
+networks:
+  fractal_net:
+    driver: bridge
