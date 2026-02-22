@@ -2,51 +2,76 @@ version: "3.7"
 
 services:
 
-  # ── Fractal Bitcoin full node ────────────────────────────────────────────────
-  fractal-node:
-    image: fractalbitcoin/fractal:v0.2.1
-    container_name: fractal_store_node
-    restart: unless-stopped
-    command:
-      - "bitcoind"
-      - "-datadir=/data"
-      - "-conf=/data/bitcoin.conf"
-      - "-maxtipage=504576000"
-    volumes:
-      - ${APP_DATA_DIR}/data:/data
-    ports:
-      - "8333:8333"
-    networks:
-      - fractal_net
-    healthcheck:
-      test: ["CMD", "bitcoin-cli", "-datadir=/data", "-rpcuser=fractal", "-rpcpassword=fractal_umbrel_node", "getblockchaininfo"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
+  # Required by Umbrel: handles auth proxy and routing to APP_PORT
+  app_proxy:
+    environment:
+      APP_HOST: fractal-store-solo-node_web_1
+      APP_PORT: 3000
 
-  # ── Web dashboard + RPC proxy ────────────────────────────────────────────────
-  fractal-dashboard:
+  # Dashboard web UI (Node.js static server + RPC proxy)
+  web:
     image: node:18-alpine
-    container_name: fractal_store_dashboard
-    restart: unless-stopped
+    container_name: fractal-store-solo-node_web_1
+    restart: on-failure
+    stop_grace_period: 1m
     depends_on:
-      - fractal-node
+      - node
     working_dir: /app
     command: node server.js
     volumes:
-      - ${APP_DATA_DIR}/dashboard:/app
+      - ${APP_DATA_DIR}/dashboard:/app:ro
     environment:
-      FRACTAL_RPC_HOST: fractal-node
+      FRACTAL_RPC_HOST: fractal-store-solo-node_node_1
       FRACTAL_RPC_PORT: "10332"
       FRACTAL_RPC_USER: fractal
-      FRACTAL_RPC_PASS: fractal_umbrel_node
-      DASHBOARD_PORT: "8380"
-    ports:
-      - "${APP_PORT}:8380"
-    networks:
-      - fractal_net
+      FRACTAL_RPC_PASS: "${APP_PASSWORD}"
+      DASHBOARD_PORT: "3000"
 
-networks:
-  fractal_net:
-    driver: bridge
+  # Fractal Bitcoin full node
+  # Uses official binary downloaded at startup (no pre-built image on Docker Hub)
+  node:
+    image: debian:bookworm-slim
+    container_name: fractal-store-solo-node_node_1
+    restart: on-failure
+    stop_grace_period: 5m
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+      - ${APP_DATA_DIR}/bin:/opt/fractal
+    environment:
+      VERSION: "0.2.9rc2"
+    command: >
+      bash -c "
+        set -e
+        BINARY=/opt/fractal/bin/bitcoind
+        if [ ! -f $$BINARY ]; then
+          echo 'Downloading fractald v0.2.9rc2...'
+          apt-get update -qq && apt-get install -y wget tar -qq
+          ARCH=$$(uname -m)
+          if [ $$ARCH = 'aarch64' ]; then
+            FILE=fractald-0.2.9rc2-aarch64-linux-gnu.tar.gz
+          else
+            FILE=fractald-0.2.9rc2-x86_64-linux-gnu.tar.gz
+          fi
+          URL=https://github.com/fractal-bitcoin/fractald-release/releases/download/v0.2.9rc2/$$FILE
+          wget -q -O /tmp/fractald.tar.gz $$URL
+          tar -xzf /tmp/fractald.tar.gz -C /tmp
+          mv /tmp/fractald-0.2.9rc2-*/  /opt/fractal/
+          rm -rf /tmp/fractald.tar.gz /tmp/fractald-0.2.9rc2-*
+          echo 'Download complete.'
+        fi
+        mkdir -p /data
+        exec $$BINARY \
+          -datadir=/data \
+          -maxtipage=504576000 \
+          -server=1 \
+          -rpcuser=fractal \
+          -rpcpassword=$${FRACTAL_RPC_PASS:-fractalnode} \
+          -rpcallowip=0.0.0.0/0 \
+          -rpcbind=0.0.0.0 \
+          -rpcport=10332 \
+          -port=8333 \
+          -maxconnections=25 \
+          -prune=10000
+      "
+    environment:
+      FRACTAL_RPC_PASS: "${APP_PASSWORD}"

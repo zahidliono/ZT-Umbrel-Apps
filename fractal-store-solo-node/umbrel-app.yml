@@ -1,42 +1,43 @@
 manifestVersion: 1
 id: fractal-store-solo-node
+category: bitcoin
 name: Fractal Bitcoin Node
-tagline: Full node + solo mining RPC endpoint for SHA-256 ASICs
+version: "0.2.9"
+tagline: Run a Fractal Bitcoin full node for solo SHA-256 mining
 icon: icon.svg
-category: Cryptocurrency
-version: "0.2.1"
-port: 8380
 description: >-
   Run a full Fractal Bitcoin (FB) node on your Umbrel. Fractal Bitcoin is a
-  Bitcoin scaling sidechain using SHA-256 Proof-of-Work with ~30 second block
-  times.
+  Bitcoin scaling solution using SHA-256 Proof-of-Work with ~30 second block
+  times — the only Bitcoin sidechain that runs Bitcoin Core code itself.
 
-  This app runs fractald (Bitcoin Core fork) with JSON-RPC enabled so you
-  can point any SHA-256 ASIC miner or cpuminer directly at your own node for
-  sovereign solo mining.
+  This app automatically downloads and runs fractald (the official Fractal
+  Bitcoin daemon) and serves a dashboard showing your node's sync status,
+  peer count, and copy-paste commands to connect any SHA-256 ASIC miner.
 
   Features:
-  ‣ Full Fractal Bitcoin mainnet node (fractald v0.2.1)
-  ‣ JSON-RPC on port 10332 for miner connection (GBT / getblocktemplate)
+  ‣ Auto-downloads official fractald binary (v0.2.9, ARM + x86 supported)
+  ‣ Full Fractal Bitcoin mainnet node with RPC on port 10332
   ‣ Supports merged mining (AuxPoW, ChainID 0x2024)
-  ‣ Web dashboard at port 8380 showing live sync, peers, difficulty
-  ‣ Copy-paste miner commands pre-filled for cpuminer, CGMiner, BFGMiner
-  ‣ Pruned mode (~10 GB) by default — configurable to full archival
+  ‣ Dashboard showing live block height, sync %, peers, difficulty
+  ‣ Pruned mode (~10 GB) — configurable to full archival
 
-  Requirements: ~10 GB disk space, ~512 MB RAM. Initial sync takes several
-  hours. Solo mining requires competitive SHA-256 ASIC hashpower to find blocks.
-
+  Requirements: ~10 GB free disk, ~512 MB RAM minimum.
+  Initial blockchain sync takes several hours.
 developer: Community
 website: https://fractalbitcoin.io
 dependencies: []
 repo: https://github.com/fractal-bitcoin/fractald-release
 support: https://docs.fractalbitcoin.io
+port: 3000
 gallery:
   - 1.jpg
   - 2.jpg
   - 3.jpg
+path: ""
+defaultUsername: ""
+defaultPassword: ""
 releaseNotes: >-
-  v0.2.1 — Initial Umbrel release. Runs fractald with RPC enabled and includes
-  a web dashboard for node status and miner connection details.
+  Initial release. Runs fractald v0.2.9rc2 with dashboard showing node status and
+  miner connection details.
 submitter: community
 submission: https://github.com/fractal-bitcoin/fractald-release

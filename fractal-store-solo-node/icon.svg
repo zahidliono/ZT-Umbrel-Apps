@@ -1,37 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-  <!-- Background -->
   <rect width="256" height="256" fill="#0d0d0d"/>
-
-  <!-- Outer fractal hexagon glow ring -->
-  <polygon points="128,18 218,68 218,188 128,238 38,188 38,68"
-    fill="none" stroke="#f7931a" stroke-width="6" opacity="0.25"/>
-
-  <!-- Mid fractal ring -->
-  <polygon points="128,42 198,82 198,174 128,214 58,174 58,82"
-    fill="none" stroke="#f7931a" stroke-width="4" opacity="0.45"/>
-
-  <!-- Inner filled hexagon -->
-  <polygon points="128,66 178,96 178,156 128,186 78,156 78,96"
-    fill="#1a1000"/>
-  <polygon points="128,66 178,96 178,156 128,186 78,156 78,96"
-    fill="none" stroke="#f7931a" stroke-width="3" opacity="0.9"/>
-
-  <!-- Bitcoin ₿ symbol, centered -->
-  <text x="128" y="149"
-    font-family="Arial, Helvetica, sans-serif"
-    font-size="82"
-    font-weight="bold"
-    fill="#f7931a"
-    text-anchor="middle"
-    dominant-baseline="auto">₿</text>
-
-  <!-- "FB" subtitle label -->
-  <text x="128" y="210"
-    font-family="Arial, Helvetica, sans-serif"
-    font-size="22"
-    font-weight="700"
-    fill="#f7931a"
-    opacity="0.7"
-    text-anchor="middle"
-    letter-spacing="6">FRACTAL</text>
+  <polygon points="128,22 214,70 214,186 128,234 42,186 42,70" fill="none" stroke="#f7931a" stroke-width="5" opacity="0.2"/>
+  <polygon points="128,46 194,84 194,172 128,210 62,172 62,84" fill="none" stroke="#f7931a" stroke-width="4" opacity="0.45"/>
+  <polygon points="128,70 174,98 174,154 128,182 82,154 82,98" fill="#110b00" stroke="#f7931a" stroke-width="2.5"/>
+  <text x="128" y="152" font-family="Arial,sans-serif" font-size="88" font-weight="bold" fill="#f7931a" text-anchor="middle">₿</text>
+  <text x="128" y="205" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#f7931a" opacity="0.6" text-anchor="middle" letter-spacing="8">FRACTAL</text>
 </svg>
