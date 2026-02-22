@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fractal Bitcoin Node</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d0d0d;color:#e0e0e0;min-height:100vh;padding:28px}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:30px}
+.logo{width:52px;height:52px;background:linear-gradient(135deg,#f7931a,#ffb347);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+h1{font-size:26px;font-weight:700;color:#fff}
+h1 span{color:#f7931a}
+.sub{color:#666;font-size:13px;margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:500;margin-left:auto}
+.badge.sync{background:#2a1800;color:#f7931a;border:1px solid #f7931a44}
+.badge.ok{background:#001a08;color:#00c853;border:1px solid #00c85344}
+.badge.off{background:#1a0000;color:#ff5252;border:1px solid #ff525244}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:28px}
+.card{background:#1a1a1a;border:1px solid #242424;border-radius:12px;padding:18px}
+.cl{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.cv{font-size:21px;font-weight:700;color:#fff}
+.cs{font-size:11px;color:#444;margin-top:4px}
+.sec{font-size:15px;font-weight:600;color:#fff;margin-bottom:12px}
+.box{background:#1a1a1a;border:1px solid #242424;border-radius:12px;padding:22px;margin-bottom:22px}
+.box p{color:#777;font-size:13px;line-height:1.65;margin-bottom:14px}
+.code{background:#111;border:1px solid #2e2e2e;border-radius:8px;padding:13px 15px;font-family:'Courier New',monospace;font-size:12.5px;color:#b2dfb2;overflow-x:auto;margin-bottom:10px;white-space:pre}
+.lbl{color:#555;font-size:11px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.warn{background:#1a1200;border:1px solid #f7931a2a;border-radius:8px;padding:13px 15px;font-size:12.5px;color:#b8882a;margin-top:14px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{padding:7px 15px;border-radius:8px;border:1px solid #252525;background:#111;color:#666;font-size:12.5px;cursor:pointer;transition:all .15s}
+.tab.active{background:#f7931a1a;border-color:#f7931a55;color:#f7931a}
+#logbox{background:#111;border:1px solid #252525;border-radius:8px;padding:13px;font-family:monospace;font-size:12px;color:#666;height:170px;overflow-y:auto}
+.ln{margin-bottom:2px}
+.ln.ok{color:#66bb6a}
+.ln.err{color:#ef5350}
+.ln.warn{color:#ffa726}
+code{color:#f7931a;background:#1a0e00;padding:1px 5px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">₿</div>
+  <div>
+    <h1>Fractal <span>Bitcoin</span> Node</h1>
+    <div class="sub">Solo Mining Node · Umbrel App</div>
+  </div>
+  <span id="badge" class="badge sync"><span class="dot"></span><span id="btext">Connecting…</span></span>
+</div>
+
+<div class="grid">
+  <div class="card"><div class="cl">Block Height</div><div class="cv" id="height">—</div><div class="cs" id="sync">Loading…</div></div>
+  <div class="card"><div class="cl">Peers</div><div class="cv" id="peers">—</div><div class="cs">Active connections</div></div>
+  <div class="card"><div class="cl">Difficulty</div><div class="cv" id="diff">—</div><div class="cs">Current SHA-256 difficulty</div></div>
+  <div class="card"><div class="cl">Chain</div><div class="cv" id="chain">—</div><div class="cs" id="netver">Fractal Bitcoin</div></div>
+</div>
+
+<div class="sec">⛏️ Connect Your Miner</div>
+<div class="box">
+  <p>Point your SHA-256 ASIC miner at this node. Replace <code>YOUR_FB_ADDRESS</code> with your Fractal Bitcoin wallet address (use <a href="https://unisat.io" style="color:#f7931a" target="_blank">UniSat Wallet</a>).</p>
+  <div class="lbl">cpuminer / minerd</div>
+  <div class="code">./minerd -o http://umbrel.local:10332 \
+  -u fractal -p fractal_umbrel_node \
+  --coinbase-addr=YOUR_FB_ADDRESS \
+  -a sha256d --no-longpoll</div>
+  <div class="lbl">CGMiner / BFGMiner</div>
+  <div class="code">cgminer -o http://umbrel.local:10332 \
+  -u fractal -p fractal_umbrel_node \
+  --coinbase-addr=YOUR_FB_ADDRESS</div>
+  <div class="lbl">Merged Mining — AuxPoW ChainID</div>
+  <div class="code">ChainID: 0x2024  (decimal: 8228)</div>
+  <div class="warn">⚠️ Solo mining requires significant SHA-256 ASIC hashpower to find blocks competitively. Permissionless difficulty is ~5 GH. For small miners consider an established Fractal Bitcoin pool.</div>
+</div>
+
+<div class="sec">📋 Node Log</div>
+<div class="tabs">
+  <div class="tab active" onclick="tab('log',this)">Live Status</div>
+  <div class="tab" onclick="tab('rpc',this)">RPC Commands</div>
+</div>
+<div id="plog"><div id="logbox"><div class="ln">Connecting to node…</div></div></div>
+<div id="prpc" style="display:none">
+  <div class="box" style="margin-top:0">
+    <div class="lbl">Check node info (from Umbrel SSH)</div>
+    <div class="code">docker exec fractal_store_node \
+  bitcoin-cli -datadir=/data getblockchaininfo</div>
+    <div class="lbl">Get block template for miners</div>
+    <div class="code">curl -s --user fractal:fractal_umbrel_node \
+  --data-binary '{"jsonrpc":"1.0","method":"getblocktemplate","params":[{"rules":["segwit"]}]}' \
+  -H 'content-type:text/plain;' http://umbrel.local:10332/</div>
+    <div class="lbl">Check mining info</div>
+    <div class="code">docker exec fractal_store_node \
+  bitcoin-cli -datadir=/data getmininginfo</div>
+  </div>
+</div>
+
+<script>
+function tab(name, el) {
+  document.getElementById('plog').style.display = name==='log' ? '' : 'none';
+  document.getElementById('prpc').style.display = name==='rpc' ? '' : 'none';
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function log(msg, type='') {
+  const b = document.getElementById('logbox');
+  const d = document.createElement('div');
+  d.className = 'ln ' + type;
+  d.textContent = new Date().toLocaleTimeString() + ' › ' + msg;
+  b.appendChild(d);
+  b.scrollTop = b.scrollHeight;
+  if (b.children.length > 150) b.removeChild(b.firstChild);
+}
+async function rpc(method, params=[]) {
+  const r = await fetch('/api/rpc', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({jsonrpc:'1.0',id:'ui',method,params})});
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message);
+  return d.result;
+}
+async function refresh() {
+  try {
+    const [chain, net, mining] = await Promise.all([rpc('getblockchaininfo'), rpc('getnetworkinfo'), rpc('getmininginfo')]);
+    document.getElementById('height').textContent = chain.blocks.toLocaleString();
+    const pct = (chain.verificationprogress * 100).toFixed(2);
+    document.getElementById('sync').textContent = pct >= 99.9 ? '✓ Fully synced' : `Syncing: ${pct}%`;
+    document.getElementById('peers').textContent = net.connections;
+    const d = mining.difficulty;
+    document.getElementById('diff').textContent = d >= 1e9 ? (d/1e9).toFixed(2)+'G' : d >= 1e6 ? (d/1e6).toFixed(2)+'M' : d.toFixed(0);
+    document.getElementById('chain').textContent = chain.chain === 'main' ? 'Mainnet' : chain.chain;
+    document.getElementById('netver').textContent = 'v' + net.subversion.replace(/[\/]/g,'');
+    const badge = document.getElementById('badge');
+    badge.className = 'badge ' + (pct >= 99.9 ? 'ok' : 'sync');
+    document.getElementById('btext').textContent = pct >= 99.9 ? 'Synced' : 'Syncing';
+    log(`Height: ${chain.blocks.toLocaleString()} | Peers: ${net.connections} | Sync: ${pct}%`, 'ok');
+  } catch(e) {
+    document.getElementById('badge').className = 'badge off';
+    document.getElementById('btext').textContent = 'Offline';
+    log('Node unreachable: ' + e.message, 'err');
+  }
+}
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>
