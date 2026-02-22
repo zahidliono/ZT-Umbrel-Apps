@@ -1,9 +1,0 @@
-{
-  "name": "fractal-bitcoin-dashboard",
-  "version": "1.0.0",
-  "description": "Web dashboard for Fractal Bitcoin solo mining node on Umbrel",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  }
-}
